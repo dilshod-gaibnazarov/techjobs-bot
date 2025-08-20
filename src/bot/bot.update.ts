@@ -31,6 +31,7 @@ export class BotUpdate {
         Markup.keyboard([
           ["Ro'yxatdan o'tish", 'Sozlamalar'],
           ["Mening ma'lumotlarim"],
+          
         ]).resize(),
       );
     }
