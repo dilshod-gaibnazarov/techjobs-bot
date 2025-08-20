@@ -132,7 +132,7 @@ export class BotUpdate {
   onStatus(@Ctx() ctx: MyContext) {
     ctx.reply(
       'Hozirdagi ish holatingizni tanlang',
-      Markup.keyboard([['Ish qidiryabman', 'Ish qidirmayabman']])
+      Markup.keyboard([['Ish qidiryapman', 'Bandman']])
         .resize()
         .oneTime(),
     );
@@ -569,10 +569,7 @@ export class BotUpdate {
             ctx.session.IsData.ish_holati = 'ish_holati';
             ctx.reply(
               'Hozirdagi ish holatingizni tanlang',
-              Markup.keyboard([
-                ['Ish qidiryabman', 'Ish qidirmayabman'],
-                ['Ortga'],
-              ])
+              Markup.keyboard([['Ish qidiryapman', 'Bandman'], ['Ortga']])
                 .resize()
                 .oneTime(),
             );
@@ -706,10 +703,7 @@ export class BotUpdate {
             ctx.session.IsData.ish_holati = 'ish_holati';
             ctx.reply(
               'Hozirdagi ish holatingizni tanlang',
-              Markup.keyboard([
-                ['Ish qidiryabman', 'Ish qidirmayabman'],
-                ['Ortga'],
-              ])
+              Markup.keyboard([['Ish qidiryapman', 'Bandman'], ['Ortga']])
                 .resize()
                 .oneTime(),
             );
