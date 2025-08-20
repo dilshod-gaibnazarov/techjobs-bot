@@ -10,12 +10,15 @@ export class BotUpdate {
   private readonly ADMIN_CHAT_ID = (process.env.ADMIN_ID || '')
     .split(',')
     .map((id) => Number(id));
+  private readonly FILE_FORMAT = (process.env.FILE_FORMAT || '')
+    .split(',')
+    .map((format) => format.trim());
   constructor(
     private readonly botService: BotService,
     private readonly prisma: PrismaService,
   ) {}
   @Start()
-  async start(@Ctx() ctx: Context) {
+  async start(@Ctx() ctx: MyContext) {
     if (ctx.from?.id && this.ADMIN_CHAT_ID.includes(ctx.from.id)) {
       ctx.reply(
         `Assalomu alaykum hurmatli admin botga xush kelibsiz`,
@@ -31,9 +34,40 @@ export class BotUpdate {
         Markup.keyboard([
           ["Ro'yxatdan o'tish", 'Sozlamalar'],
           ["Mening ma'lumotlarim"],
-          
         ]).resize(),
       );
+      ctx.session.formData = {
+        tel_1: null,
+        tel_2: null,
+        addres_doyimiy: null,
+        addres_hozir: null,
+        username: null,
+        fullName: null,
+        age: null,
+        yonalish: null,
+        daraja: null,
+        rezumey_link: null,
+        portfoly_link: null,
+        ish_holati: null,
+        till: [],
+        universitet: null,
+      };
+      ctx.session.IsUpdate = {
+        telefon_1: null,
+        telefon_2: null,
+        ish_holati: null,
+        daraja: null,
+        portfoly: null,
+        rezyumey: null,
+        home_1: null,
+        home_2: null,
+        universitet: null,
+        yonalish: null,
+        age: null,
+        ism: null,
+        til: null,
+        AA: null,
+      }
     }
   }
   @Hears('Excel file')
@@ -184,50 +218,17 @@ export class BotUpdate {
         ctx.session.Update.telefon_1 = ctx.message.contact.phone_number;
         ctx.session.IsUpdate.telefon_1 = null;
         ctx.session.IsUpdate.telefon_2 = 'telefon_2';
-        ctx.reply("📞 Yangi qo'shimcha telefon raqamingizni kiriting", {
-          reply_markup: {
-            keyboard: [
-              [{ text: '📲 Raqamni ulashish', request_contact: true }],
-            ],
-            resize_keyboard: true,
-            one_time_keyboard: true,
-          },
-        });
+        ctx.reply("📞 Yangi qo'shimcha telefon raqamingizni kiriting");
       }
       return;
     }
-    if (ctx.session.IsUpdate.telefon_2 == 'telefon_2') {
-      if (ctx.message && 'contact' in ctx.message) {
-        if (ctx.session.IsUpdate.telefon_2 == 'telefon_2') {
-          ctx.session.Update.telefon_2 = ctx.message.contact.phone_number;
-          ctx.session.IsUpdate.telefon_2 = null;
-          return this.botService.update(ctx);
-        }
-      }
-    }
+
     if (ctx.session.IsData.tel_1 == 'tel_1') {
       if (ctx.message && 'contact' in ctx.message) {
         ctx.session.formData.tel_1 = ctx.message.contact.phone_number;
         ctx.session.IsData.tel_1 = null;
         ctx.session.IsData.tel_2 = 'tel_2';
-        ctx.reply(`📞 Qo'shimcha telefon raqamingizni kiriting`, {
-          reply_markup: {
-            keyboard: [
-              [{ text: `📲 Raqamni ulashish`, request_contact: true }],
-            ],
-            resize_keyboard: true,
-            one_time_keyboard: true,
-          },
-        });
-      }
-      return;
-    }
-    if (ctx.session.IsData.tel_2 == 'tel_2') {
-      if (ctx.message && 'contact' in ctx.message) {
-        ctx.session.formData.tel_2 = ctx.message.contact.phone_number;
-        ctx.session.IsData.tel_2 = null;
-        ctx.session.IsData.age = 'age';
-        ctx.reply('Yoshingizni kiriting');
+        ctx.reply(`📞 Qo'shimcha telefon raqamingizni kiriting`);
       }
       return;
     }
@@ -236,7 +237,21 @@ export class BotUpdate {
   @On('document')
   async onDocument(@Ctx() ctx: MyContext) {
     if (ctx.session.IsData.rezumey_link === 'rezumey_link') {
-      if (ctx.message && 'document' in ctx.message) {
+      if (
+        ctx.message &&
+        'document' in ctx.message &&
+        ctx.message.document &&
+        ctx.message.document.file_name
+      ) {
+        const fileType =
+          ctx.message.document.file_name.split('.').pop()?.toLowerCase() || '';
+
+        if (!this.FILE_FORMAT.includes(fileType)) {
+          ctx.reply(
+            "❌ Resume noto'g'ri formatda kiritildi.\n\nIltimos, faylni PDF yoki DOC/DOCX formatda yuboring.",
+          );
+          return;
+        }
         ctx.session.formData.rezumey_link = ctx.message.document.file_id;
         ctx.session.IsData.rezumey_link = null;
         ctx.session.IsData.portfoly_link = 'portfoly_link';
@@ -244,8 +259,22 @@ export class BotUpdate {
         return;
       }
     }
-    if (ctx.message && 'document' in ctx.message) {
-      if (ctx.session.IsUpdate.rezyumey === 'Resume') {
+
+    if (ctx.session.IsUpdate.rezyumey === 'Resume') {
+      if (
+        ctx.message &&
+        'document' in ctx.message &&
+        ctx.message.document &&
+        ctx.message.document.file_name
+      ) {
+        const fileType =
+          ctx.message.document.file_name.split('.').pop()?.toLowerCase() || '';
+        if (!this.FILE_FORMAT.includes(fileType)) {
+          ctx.reply(
+            "❌ Resume noto'g'ri formatda kiritildi.\n\nIltimos, faylni PDF yoki DOC/DOCX formatda yuboring.",
+          );
+          return;
+        }
         ctx.session.Update.rezyumey = ctx.message.document.file_id;
         ctx.session.IsUpdate.rezyumey = null;
         return this.botService.update(ctx);
@@ -306,6 +335,12 @@ export class BotUpdate {
           ctx.session.IsUpdate.AA = null;
           return this.botService.update(ctx);
         }
+        if (ctx.session.IsUpdate.telefon_2 == 'telefon_2') {
+          ctx.session.Update.telefon_2 = text;
+          ctx.session.IsUpdate.telefon_2 = null;
+          return this.botService.update(ctx);
+        }
+
         if (text === "To'liq ism") {
           ctx.reply("Ism sharifingizni to'liq kiriting");
           ctx.session.IsUpdate.ism = 'ism';
@@ -601,6 +636,13 @@ export class BotUpdate {
             });
           }
         }
+      }
+      if (ctx.session.IsData.tel_2 == 'tel_2') {
+        ctx.session.formData.tel_2 = text;
+        ctx.session.IsData.tel_2 = null;
+        ctx.session.IsData.age = 'age';
+        ctx.reply('Yoshingizni kiriting');
+        return;
       }
 
       if (ctx.session.IsData.universitet === "Ta'lim dargoh") {

@@ -116,7 +116,7 @@ export class BotService {
             ...(telefon_2 && { tel_2: telefon_2 }),
             ...(daraja && { daraja }),
             ...(portfoly && { portfoly_link: portfoly }),
-            ...(rezyumey && { rezyumey_link: rezyumey }),
+            ...(rezyumey && { rezumey_link: rezyumey }),
             ...(ish_holati && { ish_holati: ish_holati }),
             ...(home_1 && { addres_doyimiy: home_1 }),
             ...(home_2 && { addres_hozir: home_2 }),
