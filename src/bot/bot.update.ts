@@ -67,7 +67,7 @@ export class BotUpdate {
         ism: null,
         til: null,
         AA: null,
-      }
+      };
     }
   }
   @Hears('Excel file')
